@@ -5,14 +5,14 @@
 
 WiFiClientSecure wifiClient;
 PubSubClient pubSubClient(wifiClient);
-void connectWifi();
-void reconnect();
+void connectToWifi();
+void reconnectToMqttBroker();
 
 void setup() {
   Serial.begin(115200);
   delay(100);
 
-  connectWifi();
+  connectToWifi();
 
   pubSubClient.setBufferSize(2048);
   pubSubClient.setServer(MQTT_HOST, MQTT_PORT);
@@ -20,7 +20,7 @@ void setup() {
 
 void loop() {
   if (!pubSubClient.connected()) {
-    reconnect();
+    reconnectToMqttBroker();
   }
   pubSubClient.loop();
 
@@ -32,7 +32,7 @@ void loop() {
   }
 }
 
-void connectWifi() {
+void connectToWifi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
 
@@ -45,7 +45,7 @@ void connectWifi() {
   wifiClient.setInsecure();
 }
 
-void reconnect() {
+void reconnectToMqttBroker() {
   while (!pubSubClient.connected()) {
     String clientId = "ESP32_PIR_" + String(random(0xffff), HEX);
     
