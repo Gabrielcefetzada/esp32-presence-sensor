@@ -7,6 +7,7 @@ ENV TIMEZONE=${timezone:-"Asia/Shanghai"} \
     SCAN_CACHEABLE=false
 
 RUN set -ex \
+    && apk add --no-cache mosquitto-clients \
     && php -v \
     && php -m \
     && php --ri swoole \
