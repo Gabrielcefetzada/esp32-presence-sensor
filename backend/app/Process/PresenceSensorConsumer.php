@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Process;
 
+use App\Service\MovementService;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Process\AbstractProcess;
@@ -20,11 +21,13 @@ class PresenceSensorConsumer extends AbstractProcess
     public string $mqttUser;
 
     private StdoutLoggerInterface $logger;
+    private MovementService $movementService;
 
     public function __construct(ContainerInterface $container, ConfigInterface $config)
     {
         parent::__construct($container);
         $this->logger = $container->get(StdoutLoggerInterface::class);
+        $this->movementService = $container->get(MovementService::class);
         
         $this->mqttHost = $config->get('mqtt.host', 'localhost');
         $this->mqttUser = $config->get('mqtt.user', '');
@@ -52,7 +55,10 @@ class PresenceSensorConsumer extends AbstractProcess
                     $message = fgets($process);
 
                     if ($message !== false && trim($message) !== '') {
-                        $this->logger->info(sprintf('[Nova mensagem] %s', trim($message)));
+                        $trimmedMessage = trim($message);
+                        
+                        $this->logger->info(sprintf('[Nova mensagem] %s', $trimmedMessage));                        
+                        $this->movementService->handleMovement($trimmedMessage);
                     }
                 }
 

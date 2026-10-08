@@ -23,7 +23,6 @@ RUN set -ex \
 
 WORKDIR /opt/www
 
-# Copia os arquivos do projeto
 COPY . /opt/www
 
 EXPOSE 9501
