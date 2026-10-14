@@ -3,6 +3,11 @@
 #include <PubSubClient.h>
 #include "config.h"
 
+const int PIR_PIN = 25;
+
+int lastPirState = LOW;
+int currentPirState = LOW;
+
 WiFiClientSecure wifiClient;
 PubSubClient pubSubClient(wifiClient);
 void connectToWifi();
@@ -11,6 +16,8 @@ void reconnectToMqttBroker();
 void setup() {
   Serial.begin(115200);
   delay(100);
+
+  pinMode(PIR_PIN, INPUT);
 
   connectToWifi();
 
@@ -24,12 +31,15 @@ void loop() {
   }
   pubSubClient.loop();
 
-  static unsigned long lastMsg = 0;
-  if (millis() - lastMsg > 3000) {
-    lastMsg = millis();
-    pubSubClient.publish("sensores/teste", "{\"status\": \"online\"}");
-    Serial.println("Mensagem publicada via TLS!");
+  currentPirState = digitalRead(PIR_PIN);
+
+  if (currentPirState == HIGH && lastPirState == LOW) {
+    Serial.println("Motion detected!");
+    pubSubClient.publish("sensors/test", "{\"status\": \"motion_detected\"}");
+    delay(1000);
   }
+
+  lastPirState = currentPirState;
 }
 
 void connectToWifi() {
@@ -41,16 +51,15 @@ void connectToWifi() {
     Serial.print(".");
   }
 
-  Serial.println("\nWi-Fi Conectado!");
+  Serial.println("\nWi-Fi connected!");
   wifiClient.setInsecure();
 }
 
 void reconnectToMqttBroker() {
   while (!pubSubClient.connected()) {
     String clientId = "ESP32_PIR_" + String(random(0xffff), HEX);
-    
     if (pubSubClient.connect(clientId.c_str(), MQTT_USER, MQTT_PASS)) {
-      Serial.println("CONECTADO COM SUCESSO!");
+      Serial.println("CONNECTED SUCCESSFULLY!");
     } else {
       Serial.print(pubSubClient.state());
       delay(3000);

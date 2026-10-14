@@ -20,8 +20,8 @@ class MovementService
 
     public function handleMovement(string $payload): void
     {
-        $text = "🚨 *Warning! Presence detected!*\n\n" . $payload;
-        
+        $text = "🚨 *Warning! Presence detected!*\n\n" . $this->escapeMarkdown($payload);
+
         $sent = $this->telegramIntegration->sendMessage($text);
 
         if ($sent) {
@@ -29,5 +29,14 @@ class MovementService
         } else {
             $this->logger->error('Message delivery fail.');
         }
+    }
+
+    private function escapeMarkdown(string $text): string
+    {
+        return str_replace(
+            ['_', '*', '`', '['],
+            ['\_', '\*', '\`', '\['],
+            $text
+        );
     }
 }

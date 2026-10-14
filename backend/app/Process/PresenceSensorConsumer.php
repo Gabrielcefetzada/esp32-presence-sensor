@@ -37,7 +37,7 @@ class PresenceSensorConsumer extends AbstractProcess
     public function handle(): void
     {
         $command = sprintf(
-            'mosquitto_sub -h %s -p 8883 -u %s -P %s -t sensores/teste --cafile /etc/ssl/certs/ca-certificates.crt -v',
+            'mosquitto_sub -h %s -p 8883 -u %s -P %s -t sensors/test --cafile /etc/ssl/certs/ca-certificates.crt -v',
             $this->mqttHost,
             $this->mqttUser,
             $this->mqttPassword
