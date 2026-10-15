@@ -4,14 +4,18 @@
 #include "config.h"
 
 const int PIR_PIN = 25;
+const char* MQTT_TOPIC = "sensors/test";
+const char* MOTION_PAYLOAD = "{\"message\": \"🚨 Motion Detected 🚨\"}";
 
 int lastPirState = LOW;
-int currentPirState = LOW;
 
 WiFiClientSecure wifiClient;
 PubSubClient pubSubClient(wifiClient);
+
 void connectToWifi();
 void reconnectToMqttBroker();
+bool hasMotionStarted();
+void publishMotionAlert();
 
 void setup() {
   Serial.begin(115200);
@@ -31,15 +35,25 @@ void loop() {
   }
   pubSubClient.loop();
 
-  currentPirState = digitalRead(PIR_PIN);
-
-  if (currentPirState == HIGH && lastPirState == LOW) {
-    Serial.println("Motion detected!");
-    pubSubClient.publish("sensors/test", "{\"status\": \"motion_detected\"}");
+  if (hasMotionStarted()) {
+    publishMotionAlert();
     delay(1000);
   }
+}
 
+bool hasMotionStarted() {
+  int currentPirState = digitalRead(PIR_PIN);
+  bool started = (currentPirState == HIGH && lastPirState == LOW);
   lastPirState = currentPirState;
+  return started;
+}
+
+void publishMotionAlert() {
+  Serial.println("Motion detected!");
+
+  if (!pubSubClient.publish(MQTT_TOPIC, MOTION_PAYLOAD)) {
+    Serial.println("Failed to publish motion alert");
+  }
 }
 
 void connectToWifi() {
