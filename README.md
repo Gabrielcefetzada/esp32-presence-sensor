@@ -1,4 +1,4 @@
-# Motion Detector with ESP32, MQTT and Telegram
+# Motion Detector 
 
 A simple prototype that detects motion and sends an alert to a Telegram chat.
 
