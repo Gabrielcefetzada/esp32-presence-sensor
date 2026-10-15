@@ -1,4 +1,6 @@
-# Motion Detector 
+# Motion Detector
+
+demo/pratice-demo.mp4.
 
 A simple prototype that detects motion and sends an alert to a Telegram chat.
 
